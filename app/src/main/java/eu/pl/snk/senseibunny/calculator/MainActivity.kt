@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
     private var tvInput: TextView? = null
     var lastNumeric: Boolean = false
     var lastDot: Boolean = false
+    var first: Boolean = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClear(view:View){
-        tvInput?.text="0"
+        tvInput?.text=""
         lastNumeric=false
         lastDot=false
     }
@@ -37,6 +38,16 @@ class MainActivity : AppCompatActivity() {
             tvInput?.append(".")
             lastNumeric=false
             lastDot=true
+        }
+    }
+
+    fun onOne(view: View){
+        if(first){
+            tvInput?.append("0.")
+            first=false
+        }
+        else{
+            tvInput?.append("0")
         }
     }
 
@@ -58,6 +69,53 @@ class MainActivity : AppCompatActivity() {
                     || value.contains("*")
                     || value.contains("-")
                     || value.contains("+"))
+        }
+    }
+
+    private fun removeZeroAfterDot(result: String): String{
+        var value = result
+
+        if(result.contains(".0"))
+            value=result.substring(0,result.length-2)
+
+        return value
+    }
+    fun onEqual(view: View){
+        if(lastNumeric){
+            var tvValue=tvInput?.text.toString()
+            var prefix = ""
+            try{
+                if(tvValue.startsWith("-")){
+                    prefix="-"
+                    tvValue=tvValue.substring(1)
+                }
+                else if(tvValue.contains("-")){
+                    val splitValue = tvValue.split("-")
+                    var one = prefix+splitValue[0]
+                    var two = splitValue[1]
+                    tvInput?.text=removeZeroAfterDot((one.toDouble()- two.toDouble()).toString())
+                }
+                else if(tvValue.contains("+")){
+                    val splitValue = tvValue.split("+")
+                    var one = splitValue[0]
+                    var two = splitValue[1]
+                    tvInput?.text=removeZeroAfterDot((one.toDouble() + two.toDouble()).toString())
+                }
+                else if(tvValue.contains("/")){
+                    val splitValue = tvValue.split("/")
+                    var one = prefix+splitValue[0]
+                    var two = splitValue[1]
+                    tvInput?.text=removeZeroAfterDot((one.toDouble() / two.toDouble()).toString())
+                }
+                else if(tvValue.contains("*")){
+                    val splitValue = tvValue.split("*")
+                    var one = splitValue[0]
+                    var two = splitValue[1]
+                    tvInput?.text=removeZeroAfterDot((one.toDouble()*two.toDouble()).toString())
+                }
+            }catch (e:java.lang.ArithmeticException){
+                e.printStackTrace();
+            }
         }
     }
 }
